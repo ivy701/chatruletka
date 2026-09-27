@@ -30,6 +30,28 @@ const server = http.createServer((req, res) => {
     return res.end();
   }
 
+  // Telegram webhook endpoint (for Vercel or cloud deployment)
+  if ((req.url === '/api/webhook' || req.url === '/api/bot') && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const update = JSON.parse(body);
+        const botModule = require('./bot.js');
+        if (botModule.processTelegramUpdate) {
+          await botModule.processTelegramUpdate(update);
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true }));
+      } catch (err) {
+        console.error('[WEBHOOK ERROR]', err.message);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
   // Real client IP detection
   if (req.url === '/api/client-info') {
     const forwarded = req.headers['x-forwarded-for'];
@@ -187,12 +209,12 @@ if (!process.env.VERCEL) {
     }
     console.log(`======================================================\n`);
 
-    // Avtomatik Telegram botni ham ishga tushirish
+    // Avtomatik Telegram botni ham ishga tushirish (stdio: inherit bilan loglar ko'rinadi)
     if (process.env.NO_BOT !== 'true') {
       const { fork } = require('child_process');
       const botPath = path.join(__dirname, 'bot.js');
       if (fs.existsSync(botPath)) {
-        const botProc = fork(botPath);
+        const botProc = fork(botPath, [], { stdio: 'inherit' });
         botProc.on('error', err => console.error('[BOT PROCESS ERROR]:', err.message));
       }
     }
