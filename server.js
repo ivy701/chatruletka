@@ -99,10 +99,17 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Explicit static files bundled by Vercel
+  const INDEX_FILE = path.join(__dirname, 'index.html');
+
   // Serve static files
   let reqPath = req.url.split('?')[0];
-  if (reqPath === '/' || reqPath === '') {
-    reqPath = '/index.html';
+  if (reqPath === '/' || reqPath === '' || reqPath.endsWith('index.html')) {
+    if (fs.existsSync(INDEX_FILE)) {
+      const htmlContent = fs.readFileSync(INDEX_FILE);
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end(htmlContent);
+    }
   }
 
   const cleanRel = decodeURIComponent(reqPath).replace(/^\/+/, '');

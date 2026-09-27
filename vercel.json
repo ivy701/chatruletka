@@ -1,10 +1,25 @@
 {
   "version": 2,
-  "cleanUrls": true,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/server.js"
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/videos/(.*)",
+      "dest": "/videos/$1"
+    },
+    {
+      "src": "/funny_face.jpg",
+      "dest": "/funny_face.jpg"
+    },
+    {
+      "src": "/bot_avatar.jpg",
+      "dest": "/bot_avatar.jpg"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
