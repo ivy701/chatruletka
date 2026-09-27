@@ -1,0 +1,12 @@
+# Dependency & System files
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Live generated snapshots
+snapshots/*.jpg
+!snapshots/.gitkeep
+
+# Exclude raw large download files over 100MB
+videos/yt*
+videos/*.m4a
