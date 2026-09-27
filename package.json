@@ -1,0 +1,12 @@
+{
+  "name": "chatruletka-prank",
+  "version": "1.0.0",
+  "description": "AnonChat TV Prank Website and Telegram Bot",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}

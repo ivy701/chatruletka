@@ -105,7 +105,12 @@ const server = http.createServer((req, res) => {
     reqPath = '/index.html';
   }
 
-  const filePath = path.join(PUBLIC_DIR, decodeURIComponent(reqPath));
+  const cleanRel = decodeURIComponent(reqPath).replace(/^\/+/, '');
+  let filePath = path.join(__dirname, cleanRel);
+  if (!fs.existsSync(filePath)) {
+    filePath = path.join(process.cwd(), cleanRel);
+  }
+
   const ext = path.extname(filePath).toLowerCase();
 
   if (ext === '.mp4') {
@@ -157,28 +162,32 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  const nets = os.networkInterfaces();
-  console.log(`\n======================================================`);
-  console.log(`  🚀 AnonChat TV serveri ishga tushdi!`);
-  console.log(`  🔗 Kompyuterda ochish:  http://localhost:${PORT}`);
-  
-  for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-      if (net.family === 'IPv4' && !net.internal) {
-        console.log(`  📱 Telefonda ochish:    http://${net.address}:${PORT}`);
+module.exports = server;
+
+if (!process.env.VERCEL) {
+  server.listen(PORT, '0.0.0.0', () => {
+    const nets = os.networkInterfaces();
+    console.log(`\n======================================================`);
+    console.log(`  🚀 AnonChat TV serveri ishga tushdi!`);
+    console.log(`  🔗 Kompyuterda ochish:  http://localhost:${PORT}`);
+    
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          console.log(`  📱 Telefonda ochish:    http://${net.address}:${PORT}`);
+        }
       }
     }
-  }
-  console.log(`======================================================\n`);
+    console.log(`======================================================\n`);
 
-  // Avtomatik Telegram botni ham ishga tushirish
-  if (process.env.NO_BOT !== 'true') {
-    const { fork } = require('child_process');
-    const botPath = path.join(__dirname, 'bot.js');
-    if (fs.existsSync(botPath)) {
-      const botProc = fork(botPath);
-      botProc.on('error', err => console.error('[BOT PROCESS ERROR]:', err.message));
+    // Avtomatik Telegram botni ham ishga tushirish
+    if (process.env.NO_BOT !== 'true') {
+      const { fork } = require('child_process');
+      const botPath = path.join(__dirname, 'bot.js');
+      if (fs.existsSync(botPath)) {
+        const botProc = fork(botPath);
+        botProc.on('error', err => console.error('[BOT PROCESS ERROR]:', err.message));
+      }
     }
-  }
-});
+  });
+}
